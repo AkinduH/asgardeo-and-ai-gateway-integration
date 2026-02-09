@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         client_id: clientId,
         username: agentId,
         password: agentSecret,
-        scope: 'openid'
+        scope: 'openid Support-Coordinator Technical-Specialist'
       }),
     });
 

@@ -49,7 +49,7 @@ export default function SimulationPanel({
 
         <SimulationCaseCard
           caseType="wrong-agent"
-          title="Case 2: Agent on Wrong Path (Impersonation)"
+          title="Case 2: Agent on Wrong Path"
           description="Support-Coordinator authenticates with its credentials but tries to act as Technical-Specialist"
           expectedResult="Expected: Denied"
           expectedColor="yellow"
