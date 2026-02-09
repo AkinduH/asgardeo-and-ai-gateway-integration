@@ -11,6 +11,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate orgName format
+    const orgNamePattern = /^[a-z0-9-]+$/i;
+    if (!orgNamePattern.test(orgName) || orgName.length > 50) {
+      return NextResponse.json(
+        { error: 'Invalid orgName. Ensure it matches the pattern /^[a-z0-9-]+$/i and is at most 50 characters long.' },
+        { status: 400 }
+      );
+    }
+
     const baseUrl = `https://api.asgardeo.io/t/${orgName}`;
 
     // Get token using Resource Owner Password Credentials grant
