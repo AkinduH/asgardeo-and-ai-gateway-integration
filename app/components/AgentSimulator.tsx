@@ -28,9 +28,14 @@ export default function AgentSimulator({ config, onOpenConfig }: AgentSimulatorP
   const [expandedResult, setExpandedResult] = useState<number | null>(null);
 
   const isConfigValid = (): boolean => {
-    return !!(config.orgName && config.clientId && config.targetUrl &&
+    const baseValid = !!(config.orgName && config.clientId &&
            config.coordinatorAgent.agentId && config.coordinatorAgent.agentSecret &&
            config.expertAgent.agentId && config.expertAgent.agentSecret);
+    
+    if (config.gatewayType === 'wso2') {
+      return baseValid && !!(config.wso2CoordinatorUrl && config.wso2ExpertUrl);
+    }
+    return baseValid && !!config.targetUrl;
   };
 
   const getAgentCredentials = (agentType: string) => {
@@ -73,12 +78,28 @@ export default function AgentSimulator({ config, onOpenConfig }: AgentSimulatorP
     }
   };
 
+  const getTargetUrl = (targetAgent: string): string => {
+    if (config.gatewayType === 'wso2') {
+      return targetAgent === 'Support-Coordinator'
+        ? config.wso2CoordinatorUrl
+        : config.wso2ExpertUrl;
+    }
+    return config.targetUrl;
+  };
+
   const sendChatRequest = async (token: string | null, agentType: string) => {
+    const targetUrl = getTargetUrl(agentType);
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'x-agent-type': agentType,
-      'x-target-url': config.targetUrl
+      'x-target-url': targetUrl,
+      'x-gateway-type': config.gatewayType
     };
+
+    // Kong uses header-based routing
+    if (config.gatewayType === 'kong') {
+      headers['x-agent-type'] = agentType;
+    }
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -119,7 +140,8 @@ export default function AgentSimulator({ config, onOpenConfig }: AgentSimulatorP
 
       const result: SimulationResult = {
         selection: { ...selection },
-        scenarioLabel: getScenarioLabel(selection),
+        gatewayType: config.gatewayType,
+        scenarioLabel: getScenarioLabel(selection, config.gatewayType),
         tokenReceived: token,
         response: data,
         statusCode,
@@ -131,7 +153,8 @@ export default function AgentSimulator({ config, onOpenConfig }: AgentSimulatorP
     } catch (error) {
       const errorResult: SimulationResult = {
         selection: { ...selection },
-        scenarioLabel: getScenarioLabel(selection),
+        gatewayType: config.gatewayType,
+        scenarioLabel: getScenarioLabel(selection, config.gatewayType),
         tokenReceived: null,
         response: { error: error instanceof Error ? error.message : 'Unknown error' },
         statusCode: 500,
@@ -163,6 +186,7 @@ export default function AgentSimulator({ config, onOpenConfig }: AgentSimulatorP
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SelectionPanel
             selection={selection}
+            gatewayType={config.gatewayType}
             isLoading={isLoading}
             isConfigValid={isConfigValid()}
             onSelectionChange={setSelection}

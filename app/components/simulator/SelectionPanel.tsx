@@ -1,9 +1,11 @@
 'use client';
 
+import { GatewayType } from '../ConfigurationModal';
 import { AgentType, SimulationSelection, getExpectedOutcome } from './types';
 
 interface SelectionPanelProps {
   selection: SimulationSelection;
+  gatewayType: GatewayType;
   isLoading: boolean;
   isConfigValid: boolean;
   onSelectionChange: (selection: SimulationSelection) => void;
@@ -12,12 +14,13 @@ interface SelectionPanelProps {
 
 export default function SelectionPanel({
   selection,
+  gatewayType,
   isLoading,
   isConfigValid,
   onSelectionChange,
   onRunSimulation
 }: SelectionPanelProps) {
-  const expected = getExpectedOutcome(selection);
+  const expected = getExpectedOutcome(selection, gatewayType);
 
   const expectedColorClasses = {
     green: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400',
@@ -30,14 +33,33 @@ export default function SelectionPanel({
     { value: 'Technical-Specialist', label: 'Technical-Specialist', icon: '🔧' }
   ];
 
+  const isKong = gatewayType === 'kong';
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
-        Simulation with KONG AI Gateway
+        Select Simulation
       </h2>
+
+      {/* Gateway Badge */}
+      <div className="mb-6">
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+          isKong
+            ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+            : 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${isKong ? 'bg-indigo-500' : 'bg-teal-500'}`} />
+          {isKong ? 'Kong AI Gateway' : 'WSO2 AI Gateway'}
+        </span>
+        {/* <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+          {isKong
+            ? 'Agent routing via x-agent-type header'
+            : 'Separate proxy URLs per agent'}
+        </p> */}
+      </div>
 
       <div className="space-y-6 mb-6">
         {/* Calling Agent */}
@@ -72,13 +94,15 @@ export default function SelectionPanel({
           </div>
         </div>
 
-        {/* Target Route */}
+        {/* Target Route / Target Agent URL */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Target Route
+            {isKong ? 'Target Route' : 'Target Agent URL'}
           </label>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-            Which agent&apos;s route is the request sent to? This sets the <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">x-agent-type</code> header.
+            {isKong
+              ? <>Which agent&apos;s route is the request sent to? This sets the <code className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">x-agent-type</code> header.</>
+              : 'Which agent\'s dedicated proxy URL will the request be sent to?'}
           </p>
           <div className="grid grid-cols-2 gap-3">
             {agentOptions.map((agent) => (
@@ -92,13 +116,20 @@ export default function SelectionPanel({
                 }`}
               >
                 <span className="text-lg">{agent.icon}</span>
-                <span className={`text-sm font-medium ${
-                  selection.targetRoute === agent.value
-                    ? 'text-blue-700 dark:text-blue-400'
-                    : 'text-gray-700 dark:text-gray-300'
-                }`}>
-                  {agent.label}
-                </span>
+                <div>
+                  <span className={`text-sm font-medium block ${
+                    selection.targetRoute === agent.value
+                      ? 'text-blue-700 dark:text-blue-400'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}>
+                    {agent.label}
+                  </span>
+                  {!isKong && (
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 block mt-0.5">
+                      {agent.value === 'Support-Coordinator' ? 'Coordinator proxy URL' : 'Expert proxy URL'}
+                    </span>
+                  )}
+                </div>
               </button>
             ))}
           </div>

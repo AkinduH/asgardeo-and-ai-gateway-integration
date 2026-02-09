@@ -4,10 +4,12 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request body and headers from the client
     const body = await request.json();
+    const gatewayType = request.headers.get("x-gateway-type") || "kong";
     const model = request.headers.get("x-agent-type") || "Support-Coordinator";
     const targetUrl = request.headers.get("x-target-url") || "https://ai-gateway-url.com/chat";
     const accessToken = request.headers.get("authorization");
 
+    console.log("Gateway type:", gatewayType);
     console.log("Proxy request to:", targetUrl);
     console.log("Model:", model);
     console.log("Has Access Token:", !!accessToken);
@@ -16,8 +18,12 @@ export async function POST(request: NextRequest) {
     // Build headers for AI Gateway
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      "x-agent-type": model,
     };
+
+    // Kong uses header-based routing; WSO2 uses separate URLs so no agent-type header needed
+    if (gatewayType === "kong") {
+      headers["x-agent-type"] = model;
+    }
 
     // Add authorization header if provided
     if (accessToken) {

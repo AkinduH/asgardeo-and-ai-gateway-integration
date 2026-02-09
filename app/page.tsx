@@ -5,9 +5,12 @@ import ConfigurationModal, { AppConfig } from './components/ConfigurationModal';
 import AgentSimulator from './components/AgentSimulator';
 
 const defaultConfig: AppConfig = {
+  gatewayType: 'kong',
   orgName: '',
   clientId: '',
   targetUrl: '',
+  wso2CoordinatorUrl: '',
+  wso2ExpertUrl: '',
   coordinatorAgent: {
     agentId: '',
     agentSecret: ''

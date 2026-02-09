@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 
+export type GatewayType = 'kong' | 'wso2';
+
 export interface AppConfig {
+  gatewayType: GatewayType;
   orgName: string;
   clientId: string;
   targetUrl: string;
+  wso2CoordinatorUrl: string;
+  wso2ExpertUrl: string;
   coordinatorAgent: {
     agentId: string;
     agentSecret: string;
@@ -141,19 +146,73 @@ export default function ConfigurationModal({ isOpen, onClose, config, onSave }: 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  API Gateway Target URL
+                  AI Gateway Type
                 </label>
-                <input
-                  type="url"
-                  value={localConfig.targetUrl}
-                  onChange={(e) => setLocalConfig({ ...localConfig, targetUrl: e.target.value })}
-                  placeholder="https://ai-gateway-url.com/chat"
-                  className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                />
+                <select
+                  value={localConfig.gatewayType}
+                  onChange={(e) => setLocalConfig({ ...localConfig, gatewayType: e.target.value as GatewayType })}
+                  className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                  <option value="wso2">WSO2 AI Gateway</option>
+                  <option value="kong">Kong AI Gateway</option>
+                </select>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  AI Gateway proxy URL endpoint
+                  {localConfig.gatewayType === 'kong'
+                    ? 'Uses a single endpoint with header-based agent routing'
+                    : 'Uses separate proxy URLs per agent (Make sure you get final urls from test console by excuting one time)'}
                 </p>
               </div>
+
+              {localConfig.gatewayType === 'kong' ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    API Gateway Target URL
+                  </label>
+                  <input
+                    type="url"
+                    value={localConfig.targetUrl}
+                    onChange={(e) => setLocalConfig({ ...localConfig, targetUrl: e.target.value })}
+                    placeholder="https://kong-ai-gateway-url.com/chat"
+                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Single Kong AI Gateway proxy URL endpoint
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Support-Coordinator Proxy URL
+                    </label>
+                    <input
+                      type="url"
+                      value={localConfig.wso2CoordinatorUrl}
+                      onChange={(e) => setLocalConfig({ ...localConfig, wso2CoordinatorUrl: e.target.value })}
+                      placeholder="https://wso2-gateway-prod/support/v1.0/chat/completions?api-version"
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      AI proxy URL for the Support-Coordinator agent
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Technical-Specialist Proxy URL
+                    </label>
+                    <input
+                      type="url"
+                      value={localConfig.wso2ExpertUrl}
+                      onChange={(e) => setLocalConfig({ ...localConfig, wso2ExpertUrl: e.target.value })}
+                      placeholder="https://wso2-gateway-prod/expert/v1.0/chat/completions?api-version"
+                      className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      AI proxy URL for the Technical-Specialist agent
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

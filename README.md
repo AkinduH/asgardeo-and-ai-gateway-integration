@@ -21,12 +21,12 @@ This application demonstrates a secure architecture where:
 
 1. **Agents** authenticate with Asgardeo using their unique credentials
 2. **JWT tokens** are obtained through Asgardeo
-3. **Requests** are routed through AI Gateway
+3. **Requests** are routed through an AI Gateway (**Kong** or **WSO2**)
 4. **Identity validation** ensures agents can only act as themselves
 5. **AI services** are protected from unauthorized access
 
 ```
-Agent → Asgardeo (Auth) → Application → AI Gateway → AI Service
+Agent → Asgardeo (Auth) → AI Gateway → AI Services
 ```
 
 ---
@@ -46,7 +46,7 @@ Before you begin, ensure you have the following:
 1. Log in to [Asgardeo Console](https://console.asgardeo.io/)
 2. Create a new **Public Client** application
 3. Note your **Organization Name** and **Client ID**
-4. Create service accounts for your agents:
+4. Create accounts for your agents:
    - Support-Coordinator Agent
    - Technical-Specialist Agent
 
@@ -88,9 +88,14 @@ When you first launch the application, you'll be prompted to configure the follo
 |-----------|-------------|---------|
 | **Organization Name** | Your Asgardeo organization identifier | `org123` |
 | **Client ID** | The Client ID from your Asgardeo Public Client | `abc123xyz` |
-| **API Gateway URL** | Your  AI Gateway endpoint URL | `https://gateway.example.com/api` |
-| **Support-Coordinator Credentials** | Username and password for the Support-Coordinator agent | - |
-| **Technical-Specialist Credentials** | Username and password for the Technical-Specialist agent | - |
+| **AI Gateway Type** | Choose between **Kong AI Gateway** or **WSO2 AI Gateway** | `Kong AI Gateway`/ `WSO2 AI Gateway` |
+| **API Gateway URL** *(Kong)* | Single Kong AI Gateway endpoint URL (header-based routing) | `https://kong-gateway.example.com/api` |
+| **Support-Coordinator Proxy URL** *(WSO2)* | Dedicated WSO2 proxy URL for the Support-Coordinator agent | `https://wso2-gateway.example.com/coordinator/chat` |
+| **Technical-Specialist Proxy URL** *(WSO2)* | Dedicated WSO2 proxy URL for the Technical-Specialist agent | `https://wso2-gateway.example.com/expert/chat` |
+| **Support-Coordinator Credentials** | Agent ID and Agent Secret for the Support-Coordinator agent | - |
+| **Technical-Specialist Credentials** | Agent ID and Agent Secret for the Technical-Specialist agent | - |
+
+> **Note:** The URL fields shown depend on the selected gateway type. Kong uses a single endpoint with `x-agent-type` header routing, while WSO2 uses separate proxy URLs per agent.
 
 ### Configuration Steps
 
@@ -103,43 +108,55 @@ When you first launch the application, you'll be prompted to configure the follo
 
 ## 🧪 Simulation Scenarios
 
-The application includes three test scenarios to demonstrate authentication and authorization:
+The application provides a flexible simulation panel where you configure each request by selecting three options:
 
 ![Simulation Interface](images/simulation.png)
 
-### Case 1 ✅
+| Option | Description |
+|--------|-------------|
+| **Calling Agent** | Which agent is making the call (`Support-Coordinator` or `Technical-Specialist`) — determines the credentials used |
+| **Target Agent URL** | Which agent's route or proxy URL the request is sent to |
+| **Authorization** | Whether to include a Bearer token or send the request unauthenticated |
 
-**Scenario:** Agent authenticates with its own credentials and calls the API as itself
+The simulation panel adapts based on the configured **AI Gateway Type**:
 
-**Expected Result:** `Success` - Request is authorized and processed
+- **Kong AI Gateway** — sends all requests to a single URL with an `x-agent-type` header for routing
+- **WSO2 AI Gateway** — sends requests directly to the selected agent's dedicated proxy URL (no header-based routing)
+
+---
+
+### Scenario: Correct Agent ✅
+
+**Selection:** Calling Agent = X, Target Route = X, Authorization = With Token
+
+**Expected Result:** `200 Success` — Request is authorized and processed
 
 **Details:**
-- Support-Coordinator uses Support-Coordinator route
-- Technical-Specialist uses Technical-Specialist route
-- Token contains correct subject and roles
+- Agent authenticates with its own credentials and calls its own route/URL
+- Token subject matches the target identity
 - AI Gateway allows the request
 
 ---
 
-### Case 2 ❌
+### Scenario: Wrong Route ❌
 
-**Scenario:** Support-Coordinator authenticates with its credentials but tries to act as Technical-Specialist
+**Selection:** Calling Agent = X, Target Route = Y, Authorization = With Token
 
-**Expected Result:** `Denied` - Request is rejected due to identity mismatch
+**Expected Result:** `403 Denied` — Request is rejected due to identity mismatch
 
 **Details:**
-- Agent attempts to act as another agent
+- Agent authenticates as itself but targets a different agent's route/URL
 - Token subject doesn't match the claimed identity
 - AI Gateway detects the mismatch and blocks the request
 - Demonstrates protection against impersonation attacks
 
 ---
 
-### Case 3 🚫
+### Scenario: No Authentication 🚫
 
-**Scenario:** Agent calls the API without any authorization header
+**Selection:** Any Agent, Any Route, Authorization = Without Token
 
-**Expected Result:** `Unauthorized` - Request fails due to missing authentication
+**Expected Result:** `401 Unauthorized` — Request fails due to missing authentication
 
 **Details:**
 - No Bearer token is provided
@@ -166,3 +183,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 🔗 Useful Links
 
 - [Asgardeo Documentation](https://wso2.com/asgardeo/docs/)
+- [WSO2 AI Gateway Documentation](https://wso2.com/bijira/docs/)
+- [KONG AI Gateway Documentation](https://developer.konghq.com/index/ai-gateway/)
