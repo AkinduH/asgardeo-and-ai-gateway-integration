@@ -107,35 +107,35 @@ The application includes three test scenarios to demonstrate authentication and 
 
 ![Simulation Interface](images/simulation.png)
 
-### Case 1: Correct Agent ✅
+### Case 1 ✅
 
 **Scenario:** Agent authenticates with its own credentials and calls the API as itself
 
 **Expected Result:** `Success` - Request is authorized and processed
 
 **Details:**
-- Support-Coordinator uses Support-Coordinator credentials
-- Technical-Specialist uses Technical-Specialist credentials
+- Support-Coordinator uses Support-Coordinator route
+- Technical-Specialist uses Technical-Specialist route
 - Token contains correct subject and roles
 - AI Gateway allows the request
 
 ---
 
-### Case 2: Wrong Agent (Impersonation) ❌
+### Case 2 ❌
 
 **Scenario:** Support-Coordinator authenticates with its credentials but tries to act as Technical-Specialist
 
 **Expected Result:** `Denied` - Request is rejected due to identity mismatch
 
 **Details:**
-- Agent attempts to impersonate another agent
+- Agent attempts to act as another agent
 - Token subject doesn't match the claimed identity
 - AI Gateway detects the mismatch and blocks the request
 - Demonstrates protection against impersonation attacks
 
 ---
 
-### Case 3: No Authentication 🚫
+### Case 3 🚫
 
 **Scenario:** Agent calls the API without any authorization header
 

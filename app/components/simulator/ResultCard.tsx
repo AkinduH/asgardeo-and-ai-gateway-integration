@@ -1,6 +1,6 @@
 'use client';
 
-import { SimulationResult, SimulationCase } from './types';
+import { SimulationResult } from './types';
 import StatusBadge from './StatusBadge';
 
 interface ResultCardProps {
@@ -8,17 +8,6 @@ interface ResultCardProps {
   isExpanded: boolean;
   onToggle: () => void;
 }
-
-const getCaseDescription = (caseType: SimulationCase): string => {
-  switch (caseType) {
-    case 'correct-agent':
-      return 'Correct Agent Authentication';
-    case 'wrong-agent':
-      return 'Wrong Agent (Impersonation Attempt)';
-    case 'no-auth':
-      return 'No Authentication';
-  }
-};
 
 export default function ResultCard({ result, isExpanded, onToggle }: ResultCardProps) {
   return (
@@ -37,7 +26,7 @@ export default function ResultCard({ result, isExpanded, onToggle }: ResultCardP
               : 'bg-red-500'
           }`} />
           <span className="font-medium text-gray-900 dark:text-white text-sm">
-            {getCaseDescription(result.caseType)}
+            {result.scenarioLabel}
           </span>
           <StatusBadge statusCode={result.statusCode} />
         </div>
@@ -58,12 +47,18 @@ export default function ResultCard({ result, isExpanded, onToggle }: ResultCardP
       {isExpanded && (
         <div className="px-4 py-3 space-y-3 text-sm">
           <div>
-            <span className="text-gray-500 dark:text-gray-400">Agent Type Requested:</span>
-            <span className="ml-2 text-gray-900 dark:text-white">{result.agentType}</span>
+            <span className="text-gray-500 dark:text-gray-400">Calling Agent:</span>
+            <span className="ml-2 text-gray-900 dark:text-white">{result.selection.callingAgent}</span>
           </div>
           <div>
-            <span className="text-gray-500 dark:text-gray-400">Authentication:</span>
-            <span className="ml-2 text-gray-900 dark:text-white">{result.authUsed}</span>
+            <span className="text-gray-500 dark:text-gray-400">Target Route:</span>
+            <span className="ml-2 text-gray-900 dark:text-white">{result.selection.targetRoute}</span>
+          </div>
+          <div>
+            <span className="text-gray-500 dark:text-gray-400">Authorization:</span>
+            <span className="ml-2 text-gray-900 dark:text-white">
+              {result.selection.withAuthorization ? 'With Token' : 'No Token'}
+            </span>
           </div>
           <div>
             <span className="text-gray-500 dark:text-gray-400">Timestamp:</span>
