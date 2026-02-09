@@ -125,7 +125,7 @@ The simulation panel adapts based on the configured **AI Gateway Type**:
 
 ---
 
-### Scenario: Correct Agent ✅
+### Scenario: Correct Route ✅
 
 **Selection:** Calling Agent = X, Target Route = X, Authorization = With Token
 
