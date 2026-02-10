@@ -1,11 +1,11 @@
 'use client';
 
-import { GatewayType } from '../ConfigurationModal';
+import { GateWayType } from '../ConfigurationModal';
 import { AgentType, SimulationSelection, getExpectedOutcome } from './types';
 
 interface SelectionPanelProps {
   selection: SimulationSelection;
-  gatewayType: GatewayType;
+  gatewayType: GateWayType;
   isLoading: boolean;
   isConfigValid: boolean;
   onSelectionChange: (selection: SimulationSelection) => void;
@@ -33,7 +33,7 @@ export default function SelectionPanel({
     { value: 'Technical-Specialist', label: 'Technical-Specialist', icon: '🔧' }
   ];
 
-  const isKong = gatewayType === 'kong';
+  const isKong = gatewayType === GateWayType.KONG;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
@@ -54,11 +54,6 @@ export default function SelectionPanel({
           <span className={`w-2 h-2 rounded-full ${isKong ? 'bg-indigo-500' : 'bg-teal-500'}`} />
           {isKong ? 'Kong AI Gateway' : 'WSO2 AI Gateway'}
         </span>
-        {/* <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
-          {isKong
-            ? 'Agent routing via x-agent-type header'
-            : 'Separate proxy URLs per agent'}
-        </p> */}
       </div>
 
       <div className="space-y-6 mb-6">

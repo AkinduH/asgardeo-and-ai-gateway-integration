@@ -41,14 +41,13 @@ Before you begin, ensure you have the following:
 - **An AI Gateway** configured and accessible
 - **Application** created in Asgardeo Console
 
-### Asgardeo Setup
+### Asgardeo and AI Gateway Setup
 
-1. Log in to [Asgardeo Console](https://console.asgardeo.io/)
-2. Create a new **Public Client** application
-3. Note your **Organization Name** and **Client ID**
-4. Create accounts for your agents:
-   - Support-Coordinator Agent
-   - Technical-Specialist Agent
+Choose your preferred AI Gateway and follow the corresponding setup guide:
+
+- **[Kong AI Gateway Setup](./docs/kong-setup.md)** — Configure Kong with Asgardeo for agent authentication
+- **[WSO2 AI Gateway Setup](./docs/wso2-setup.md)** — Configure WSO2 with Asgardeo for agent authentication
+
 
 ---
 

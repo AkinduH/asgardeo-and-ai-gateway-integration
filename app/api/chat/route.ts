@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request body and headers from the client
     const body = await request.json();
-    const gatewayType = request.headers.get("x-gateway-type") || "kong";
+    const gatewayType = request.headers.get("x-gateway-type") || "kong"; // value matches GateWayType enum
     const model = request.headers.get("x-agent-type") || "Support-Coordinator";
     const targetUrl = request.headers.get("x-target-url") || "https://ai-gateway-url.com/chat";
     const accessToken = request.headers.get("authorization");
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Kong uses header-based routing; WSO2 uses separate URLs so no agent-type header needed
-    if (gatewayType === "kong") {
+    if (gatewayType === "kong") { // matches GateWayType.KONG value
       headers["x-agent-type"] = model;
     }
 
